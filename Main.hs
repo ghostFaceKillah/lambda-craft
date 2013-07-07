@@ -78,15 +78,17 @@ processKey key action state = do
   val <- GLFW.getKey key
   if val == GLFW.Press then return $ action state else return state
 
-processMove :: State -> IO State
-processMove state = do
-  let crx = L.cross (direction state) (up state)
-  let processA = processKey 'A' (\s -> s { pos = (pos s) + 0.05 * crx })
-  let processD = processKey 'D' (\s -> s { pos = (pos s) + (-0.05) * crx })
-  let processW = processKey 'W' (\s -> s { pos = (pos s) + 0.05 * (direction state) })
-  let processS = processKey 'S' (\s -> s { pos = (pos s) + (-0.05) * (direction state) })
+stateCombinator :: [State -> IO State] -> State -> IO State
+stateCombinator = flip $ foldr (=<<) . return
 
-  processA =<< processW =<< processS =<< processD state
+processMove :: State -> IO State
+processMove state = stateCombinator [processA, processD, processW, processS] state
+  where crx = L.cross (direction state) (up state)
+        processA = processKey 'A' (\s -> s { pos = (pos s) + 0.05 * crx })
+        processD = processKey 'D' (\s -> s { pos = (pos s) + (-0.05) * crx })
+        processW = processKey 'W' (\s -> s { pos = (pos s) + 0.05 * (direction state) })
+        processS = processKey 'S' (\s -> s { pos = (pos s) + (-0.05) * (direction state) })
+--        processQ = processKey 'Q' (\s -> s { direction = (direction s) + 0.05 * (L.V3 (-1) 0 1 ) })
 
 processEvents :: State -> IO State
 processEvents state = processMove =<< processEscape =<< processSpace state
