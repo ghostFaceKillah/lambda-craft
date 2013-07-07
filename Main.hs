@@ -14,7 +14,7 @@ main = do
   GL.shadeModel    $= GL.Smooth
   -- enable antialiasing
   GL.lineSmooth $= GL.Enabled
-  GL.clearColor $= Color4 0 0 0 0
+  GL.clearColor $= Color4 0.53 0.57 0.75 0
  
   -- set 2D orthogonal view inside windowSizeCallback because
   -- any change to the Window size should result in different
