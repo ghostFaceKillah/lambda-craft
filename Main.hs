@@ -9,7 +9,6 @@ import State
 
 main = do
   GLFW.initialize
-
   GLFW.openWindow (GL.Size 800 600) [GLFW.DisplayAlphaBits 8] GLFW.Window
   GLFW.windowTitle $= "Lambda-Craft"
   GL.shadeModel    $= GL.Smooth
@@ -48,6 +47,15 @@ render state = do
     GL.vertex $ vertex3 0.0 3.0 (-10)
     GL.vertex $ vertex3 3.0 0.0 (-10)
     GL.vertex $ vertex3 3.0 3.0 (-10)
+
+    GL.vertex $ vertex3 0.0 3.0 (-20)
+    GL.vertex $ vertex3 0.0 0.0 (-20)
+    GL.vertex $ vertex3 3.0 0.0 (-20)
+  
+    GL.vertex $ vertex3 0.0 3.0 (-20)
+    GL.vertex $ vertex3 3.0 0.0 (-20)
+    GL.vertex $ vertex3 3.0 3.0 (-20)
+
 
 setPolygonMode :: Bool -> IO ()
 setPolygonMode flag = GL.polygonMode $= (if flag then (GL.Line, GL.Line) else (GL.Fill, GL.Fill))
