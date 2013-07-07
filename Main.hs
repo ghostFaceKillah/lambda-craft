@@ -22,6 +22,7 @@ main = do
       GL.matrixMode $= GL.Projection
       GL.loadIdentity
       GLU.perspective 90.0 ((fromIntegral w)/(fromIntegral h)) 0.1 100
+      GL.matrixMode $= GL.Modelview 0
 
   mainLoop initialState
 
@@ -39,15 +40,17 @@ mainLoop state = do
 render :: State -> IO ()
 render state = do
   GL.clear [GL.ColorBuffer]
+  GL.loadIdentity
+  GLU.lookAt (GL.Vertex3 0 0 10) (GL.Vertex3 0 0 0) (GL.Vector3 0 1 0)
   GL.renderPrimitive GL.Triangles $ do
     GL.color  $ color3 1 0 0
-    GL.vertex $ vertex3 0.0 3.0 (-10)
-    GL.vertex $ vertex3 0.0 0.0 (-10)
-    GL.vertex $ vertex3 3.0 0.0 (-10)
+    GL.vertex $ vertex3 0.0 3.0 0
+    GL.vertex $ vertex3 0.0 0.0 0
+    GL.vertex $ vertex3 3.0 0.0 0
   
-    GL.vertex $ vertex3 0.0 3.0 (-10)
-    GL.vertex $ vertex3 3.0 0.0 (-10)
-    GL.vertex $ vertex3 3.0 3.0 (-10)
+    GL.vertex $ vertex3 0.0 3.0 0
+    GL.vertex $ vertex3 3.0 0.0 0
+    GL.vertex $ vertex3 3.0 3.0 0
 
 setPolygonMode :: Bool -> IO ()
 setPolygonMode flag = GL.polygonMode $= (if flag then (GL.Line, GL.Line) else (GL.Fill, GL.Fill))
@@ -65,13 +68,13 @@ processSpace state = do
 processEscape :: State -> IO State
 processEscape state = do
   p <- GLFW.getKey GLFW.ESC
-  if p == GLFW.Press then return $ state { shouldExit = True} else return state
+  if p == GLFW.Press then return $ state { shouldExit = True } else return state
 
 processEvents :: State -> IO State
 processEvents state = processEscape =<< processSpace state
 
 vertex3 :: GLfloat -> GLfloat -> GLfloat -> GL.Vertex3 GLfloat
 vertex3 = GL.Vertex3
- 
+
 color3 :: GLfloat -> GLfloat -> GLfloat -> GL.Color3 GLfloat
 color3 = GL.Color3
