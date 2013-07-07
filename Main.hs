@@ -30,72 +30,31 @@ main = do
       GL.loadIdentity
       GL.ortho2D 0 (realToFrac w) (realToFrac h) 0
 
-  -- keep all line strokes as a list of points in an IORef
-  lines <- newIORef []
-
   -- run the main loop
-  active lines
+  -- active lines
+  mainLoop
 
   -- finish up
   GLFW.closeWindow
   GLFW.terminate
 
--- we start with waitForPress action
-active lines = loop waitForPress
-  where 
-    loop action = do
-      -- draw the entire screen
-      render lines
-      -- swap buffer
-      GLFW.swapBuffers
-      -- check whether ESC is pressed for termination
-      p <- GLFW.getKey GLFW.ESC
-      unless (p == GLFW.Press) $ do
-        -- perform action
-        Action action' <- action
-        -- sleep for 1ms to yield CPU to other applications
-        GLFW.sleep 0.001
-
-        -- only continue when the window is not closed
-        windowOpen <- getParam Opened
-        unless (not windowOpen) $
-          loop action' -- loop with next action
- 
-    waitForPress = do
-      b <- GLFW.getMouseButton GLFW.ButtonLeft
-      case b of
-        GLFW.Release -> return (Action waitForPress)
-        GLFW.Press   -> do
-          -- when left mouse button is pressed, add the point
-          -- to lines and switch to waitForRelease action.
-          (GL.Position x y) <- GL.get GLFW.mousePos 
-          modifyIORef lines (((x,y):) . ((x,y):))
-          return (Action waitForRelease)
- 
-    waitForRelease = do
-        -- keep track of mouse movement while waiting for button 
-        -- release
-        (GL.Position x y) <- GL.get GLFW.mousePos
-        -- update the line with new ending position
-        modifyIORef lines (((x,y):) . tail)
-        b <- GLFW.getMouseButton GLFW.ButtonLeft
-        case b of
-          -- when button is released, switch back back to 
-          -- waitForPress action
-          GLFW.Release -> return (Action waitForPress)
-          GLFW.Press   -> return (Action waitForRelease)
-
-render lines = do
-  l <- readIORef lines
+mainLoop = do
   GL.clear [GL.ColorBuffer]
   GL.color $ color3 1 0 0
-  GL.renderPrimitive GL.Lines $ mapM_
-      (\ (x, y) -> GL.vertex (vertex3 (fromIntegral x) (fromIntegral y) 0)) l
- 
- 
+  GL.renderPrimitive GL.Lines $ do
+    GL.vertex (vertex3 (fromIntegral 10) (fromIntegral 10) 0)
+    GL.vertex (vertex3 (fromIntegral 20) (fromIntegral 20) 0)
+
+  
+  GLFW.swapBuffers
+
+  p <- GLFW.getKey GLFW.ESC
+
+  if p == GLFW.Press then return () else mainLoop
+  
+
 vertex3 :: GLfloat -> GLfloat -> GLfloat -> GL.Vertex3 GLfloat
 vertex3 = GL.Vertex3
- 
  
 color3 :: GLfloat -> GLfloat -> GLfloat -> GL.Color3 GLfloat
 color3 = GL.Color3
