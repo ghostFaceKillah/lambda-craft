@@ -47,13 +47,53 @@ render state = do
   GLU.lookAt (toVert3 $ pos state) (toVert3 $ center state) (toVec3 $ up state)
   GL.renderPrimitive GL.Triangles $ do
     GL.color  $ color3 1 0 0
-    GL.vertex $ vertex3 0.0 3.0 0
-    GL.vertex $ vertex3 0.0 0.0 0
-    GL.vertex $ vertex3 3.0 0.0 0
+    GL.vertex $ vertex3 0 3 0
+    GL.vertex $ vertex3 0 0 0
+    GL.vertex $ vertex3 3 0 0
   
-    GL.vertex $ vertex3 0.0 3.0 0
-    GL.vertex $ vertex3 3.0 0.0 0
-    GL.vertex $ vertex3 3.0 3.0 0
+    GL.vertex $ vertex3 0 3 0
+    GL.vertex $ vertex3 3 0 0
+    GL.vertex $ vertex3 3 3 0
+
+    GL.vertex $ vertex3 0 3 3
+    GL.vertex $ vertex3 0 0 3
+    GL.vertex $ vertex3 3 0 3
+  
+    GL.vertex $ vertex3 0 3 3
+    GL.vertex $ vertex3 3 0 3
+    GL.vertex $ vertex3 3 3 3
+
+    GL.vertex $ vertex3 3 0 0
+    GL.vertex $ vertex3 3 0 3
+    GL.vertex $ vertex3 3 3 3
+
+    GL.vertex $ vertex3 3 0 0
+    GL.vertex $ vertex3 3 3 0
+    GL.vertex $ vertex3 3 3 3
+
+    GL.vertex $ vertex3 0 0 0
+    GL.vertex $ vertex3 0 0 3
+    GL.vertex $ vertex3 0 3 3
+
+    GL.vertex $ vertex3 0 0 0
+    GL.vertex $ vertex3 0 3 0
+    GL.vertex $ vertex3 0 3 3
+
+    GL.vertex $ vertex3 0 3 0
+    GL.vertex $ vertex3 3 3 0
+    GL.vertex $ vertex3 0 3 3
+
+    GL.vertex $ vertex3 3 3 3
+    GL.vertex $ vertex3 3 3 0
+    GL.vertex $ vertex3 0 3 3
+
+    GL.vertex $ vertex3 0 0 0
+    GL.vertex $ vertex3 3 0 0
+    GL.vertex $ vertex3 0 0 3
+
+    GL.vertex $ vertex3 3 0 3
+    GL.vertex $ vertex3 3 0 0
+    GL.vertex $ vertex3 0 0 3
 
 setPolygonMode :: Bool -> IO ()
 setPolygonMode flag = GL.polygonMode $= (if flag then (GL.Line, GL.Line) else (GL.Fill, GL.Fill))
@@ -82,13 +122,17 @@ stateCombinator :: [State -> IO State] -> State -> IO State
 stateCombinator = flip $ foldr (=<<) . return
 
 processMove :: State -> IO State
-processMove state = stateCombinator [processA, processD, processW, processS] state
+processMove state = stateCombinator [processA, processD, processW, processS, processQ, processE] state
   where crx = L.cross (direction state) (up state)
-        processA = processKey 'A' (\s -> s { pos = (pos s) + 0.05 * crx })
-        processD = processKey 'D' (\s -> s { pos = (pos s) + (-0.05) * crx })
-        processW = processKey 'W' (\s -> s { pos = (pos s) + 0.05 * (direction state) })
-        processS = processKey 'S' (\s -> s { pos = (pos s) + (-0.05) * (direction state) })
---        processQ = processKey 'Q' (\s -> s { direction = (direction s) + 0.05 * (L.V3 (-1) 0 1 ) })
+        phi = pi/360
+        mphi = -phi
+        moveSpeed = 0.05
+        processA = processKey 'A' (\s -> s { pos = (pos s) + (-moveSpeed) * crx })
+        processD = processKey 'D' (\s -> s { pos = (pos s) + moveSpeed * crx })
+        processW = processKey 'W' (\s -> s { pos = (pos s) + moveSpeed * (direction state) })
+        processS = processKey 'S' (\s -> s { pos = (pos s) + (-moveSpeed) * (direction state) })
+        processQ = processKey 'Q' (\s -> s { direction = L.V3 ((coord1 (direction state))*cos(phi) + (coord3 (direction state))*(-1)*(sin(phi)))  (coord2 (direction state)) ((coord1 (direction state))*sin(phi) + (coord3 (direction state))*(cos(phi))) }) 
+        processE = processKey 'E' (\s -> s { direction = L.V3 ((coord1 (direction state))*cos(mphi) + (coord3 (direction state))*(-1)*(sin(mphi)))  (coord2 (direction state)) ((coord1 (direction state))*sin(mphi) + (coord3 (direction state))*(cos(mphi))) }) 
 
 processEvents :: State -> IO State
 processEvents state = processMove =<< processEscape =<< processSpace state

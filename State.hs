@@ -34,3 +34,12 @@ toVert3 (L.V3 x y z) = GL.Vertex3 (CDouble x) (CDouble y) (CDouble z)
 
 toVec3 :: L.V3 Double -> GL.Vector3 GLdouble
 toVec3 (L.V3 x y z) = GL.Vector3 (CDouble x) (CDouble y) (CDouble z)
+
+coord1 :: L.V3 Double -> Double
+coord1 (L.V3 a _ _) = a
+
+coord2 :: L.V3 Double -> Double
+coord2 (L.V3 _ a _) = a
+
+coord3 :: L.V3 Double -> Double
+coord3 (L.V3 _ _ a) = a
