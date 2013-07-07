@@ -76,12 +76,27 @@ processEscape state = do
 processMove :: State -> IO State
 processMove state = do
   a <- GLFW.getKey 'A'
+  d <- GLFW.getKey 'D'
+  w <- GLFW.getKey 'W'
+  s <- GLFW.getKey 'S'
   let crx = L.cross (direction state) (up state)
   if a == GLFW.Press then do
     let newState = state { pos = (pos state) + 0.05 * crx }
     return newState
-  else
-    return state
+  else 
+    if d == GLFW.Press then do
+      let newState = state { pos = (pos state) + (-0.05) * crx }
+      return newState
+    else 
+      if w == GLFW.Press then do
+        let newState = state { pos = (pos state) + 0.05 * direction state  }
+        return newState
+      else 
+        if s == GLFW.Press then do
+          let newState = state { pos = (pos state) + (- 0.05) * direction state  }
+          return newState
+        else 
+        return state
 
 processEvents :: State -> IO State
 processEvents state = processMove =<< processEscape =<< processSpace state
