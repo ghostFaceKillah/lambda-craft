@@ -1,8 +1,11 @@
+module Main where
+
 -- Global imports
 import Graphics.Rendering.OpenGL (($=))
 import Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL.GLU as GLU
 import Graphics.UI.GLFW as GLFW
+import Linear as L
 
 -- Local imports
 import State
@@ -41,7 +44,7 @@ render :: State -> IO ()
 render state = do
   GL.clear [GL.ColorBuffer]
   GL.loadIdentity
-  GLU.lookAt (GL.Vertex3 0 0 10) (GL.Vertex3 0 0 0) (GL.Vector3 0 1 0)
+  GLU.lookAt (toVert3 $ pos state) (toVert3 $ center state) (toVec3 $ up state)
   GL.renderPrimitive GL.Triangles $ do
     GL.color  $ color3 1 0 0
     GL.vertex $ vertex3 0.0 3.0 0
@@ -70,8 +73,18 @@ processEscape state = do
   p <- GLFW.getKey GLFW.ESC
   if p == GLFW.Press then return $ state { shouldExit = True } else return state
 
+processMove :: State -> IO State
+processMove state = do
+  a <- GLFW.getKey 'A'
+  let crx = L.cross (direction state) (up state)
+  if a == GLFW.Press then do
+    let newState = state { pos = (pos state) + 0.05 * crx }
+    return newState
+  else
+    return state
+
 processEvents :: State -> IO State
-processEvents state = processEscape =<< processSpace state
+processEvents state = processMove =<< processEscape =<< processSpace state
 
 vertex3 :: GLfloat -> GLfloat -> GLfloat -> GL.Vertex3 GLfloat
 vertex3 = GL.Vertex3
