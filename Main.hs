@@ -1,17 +1,16 @@
 import Graphics.Rendering.OpenGL as GL
+import Graphics.Rendering.OpenGL.GLU as GLU
 import Graphics.UI.GLFW as GLFW
 import Graphics.Rendering.OpenGL (($=))
 import Data.IORef
 import Control.Monad
 import System.Environment (getArgs, getProgName)
 
-data Action = Action (IO Action)
-
 main = do
   GLFW.initialize
   -- open window
-  GLFW.openWindow (GL.Size 400 400) [GLFW.DisplayAlphaBits 8] GLFW.Window
-  GLFW.windowTitle $= "GLFW Demo"
+  GLFW.openWindow (GL.Size 800 600) [GLFW.DisplayAlphaBits 8] GLFW.Window
+  GLFW.windowTitle $= "Lambda-Craft"
   GL.shadeModel    $= GL.Smooth
   -- enable antialiasing
   GL.lineSmooth $= GL.Enabled
@@ -28,7 +27,8 @@ main = do
       GL.viewport   $= (GL.Position 0 0, size)
       GL.matrixMode $= GL.Projection
       GL.loadIdentity
-      GL.ortho2D 0 (realToFrac w) (realToFrac h) 0
+      -- GL.ortho2D 0 (realToFrac w) (realToFrac h) 0
+      GLU.perspective 90.0 ((fromIntegral w)/(fromIntegral h)) 0.1 10
 
   -- run the main loop
   -- active lines
@@ -41,10 +41,10 @@ main = do
 mainLoop = do
   GL.clear [GL.ColorBuffer]
   GL.color $ color3 1 0 0
-  GL.renderPrimitive GL.Lines $ do
-    GL.vertex (vertex3 (fromIntegral 10) (fromIntegral 10) 0)
-    GL.vertex (vertex3 (fromIntegral 20) (fromIntegral 20) 0)
-
+  GL.renderPrimitive GL.Triangles $ do
+    GL.vertex (vertex3 (fromIntegral 1) (fromIntegral 1) (-10))
+    GL.vertex (vertex3 (fromIntegral 2) (fromIntegral 2) (-10))
+    GL.vertex (vertex3 (fromIntegral 2) (fromIntegral 3) (-10))
   
   GLFW.swapBuffers
 
