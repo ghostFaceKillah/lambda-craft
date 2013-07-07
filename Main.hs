@@ -14,10 +14,6 @@ main = do
   GL.shadeModel    $= GL.Smooth
   -- enable antialiasing
   GL.lineSmooth $= GL.Enabled
-  GL.blend      $= GL.Enabled
-  GL.blendFunc  $= (GL.SrcAlpha, GL.OneMinusSrcAlpha)
-  GL.lineWidth  $= 1.5
-  -- set the color to clear background
   GL.clearColor $= Color4 0 0 0 0
  
   -- set 2D orthogonal view inside windowSizeCallback because
@@ -27,8 +23,7 @@ main = do
       GL.viewport   $= (GL.Position 0 0, size)
       GL.matrixMode $= GL.Projection
       GL.loadIdentity
-      -- GL.ortho2D 0 (realToFrac w) (realToFrac h) 0
-      GLU.perspective 90.0 ((fromIntegral w)/(fromIntegral h)) 0.1 10
+      GLU.perspective 90.0 ((fromIntegral w)/(fromIntegral h)) 0.1 100
 
   -- run the main loop
   -- active lines
@@ -42,9 +37,9 @@ mainLoop = do
   GL.clear [GL.ColorBuffer]
   GL.color $ color3 1 0 0
   GL.renderPrimitive GL.Triangles $ do
-    GL.vertex (vertex3 (fromIntegral 1) (fromIntegral 1) (-10))
-    GL.vertex (vertex3 (fromIntegral 2) (fromIntegral 2) (-10))
-    GL.vertex (vertex3 (fromIntegral 2) (fromIntegral 3) (-10))
+    GL.vertex $ vertex3 1.0  1.0 (-10.0)
+    GL.vertex $ vertex3 2.0  2.0 (-10.0)
+    GL.vertex $ vertex3 2.0  3.0 (-10.0)
   
   GLFW.swapBuffers
 
