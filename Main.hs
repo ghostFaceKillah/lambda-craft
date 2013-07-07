@@ -42,10 +42,16 @@ mainLoop = do
   GL.clear [GL.ColorBuffer]
   GL.color $ color3 1 0 0
   GL.renderPrimitive GL.Triangles $ do
-    GL.vertex (vertex3 (fromIntegral 1) (fromIntegral 1) (-10))
-    GL.vertex (vertex3 (fromIntegral 2) (fromIntegral 2) (-10))
-    GL.vertex (vertex3 (fromIntegral 2) (fromIntegral 3) (-10))
+    GL.vertex (vertex3 (fromIntegral 0) (fromIntegral 3) (-10))
+    GL.vertex (vertex3 (fromIntegral 0) (fromIntegral 0) (-10))
+    GL.vertex (vertex3 (fromIntegral 3) (fromIntegral 0) (-10))
   
+  GL.color $ color3 0 1 0
+  GL.renderPrimitive GL.Triangles $ do
+    GL.vertex (vertex3 (fromIntegral 0) (fromIntegral 3) (-10))
+    GL.vertex (vertex3 (fromIntegral 3) (fromIntegral 0) (-10))
+    GL.vertex (vertex3 (fromIntegral 3) (fromIntegral 3) (-10))
+
   GLFW.swapBuffers
 
   p <- GLFW.getKey GLFW.ESC
