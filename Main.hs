@@ -122,20 +122,22 @@ stateCombinator :: [State -> IO State] -> State -> IO State
 stateCombinator = flip $ foldr (=<<) . return
 
 processMove :: State -> IO State
-processMove state = stateCombinator [processA, processD, processW, processS, processQ, processE] state
+processMove state = stateCombinator [processA, processD, processW, processS] state
   where crx = L.cross (direction state) (up state)
-        phi = pi/360
-        mphi = -phi
         moveSpeed = 0.05
         processA = processKey 'A' (\s -> s { pos = (pos s) + (-moveSpeed) * crx })
         processD = processKey 'D' (\s -> s { pos = (pos s) + moveSpeed * crx })
         processW = processKey 'W' (\s -> s { pos = (pos s) + moveSpeed * (direction state) })
         processS = processKey 'S' (\s -> s { pos = (pos s) + (-moveSpeed) * (direction state) })
-        processQ = processKey 'Q' (\s -> s { direction = L.V3 ((coord1 (direction state))*cos(phi) + (coord3 (direction state))*(-1)*(sin(phi)))  (coord2 (direction state)) ((coord1 (direction state))*sin(phi) + (coord3 (direction state))*(cos(phi))) }) 
-        processE = processKey 'E' (\s -> s { direction = L.V3 ((coord1 (direction state))*cos(mphi) + (coord3 (direction state))*(-1)*(sin(mphi)))  (coord2 (direction state)) ((coord1 (direction state))*sin(mphi) + (coord3 (direction state))*(cos(mphi))) }) 
+
+processRotation :: State -> IO State
+processRotation = stateCombinator [processQ, processE]
+  where phi = pi/360
+        processQ = processKey 'Q' (\s -> s { direction = rotateXZ phi $ direction s })
+        processE = processKey 'E' (\s -> s { direction = rotateXZ (-phi) $ direction s }) 
 
 processEvents :: State -> IO State
-processEvents state = processMove =<< processEscape =<< processSpace state
+processEvents = stateCombinator [processMove, processRotation, processEscape, processSpace]
 
 vertex3 :: GLfloat -> GLfloat -> GLfloat -> GL.Vertex3 GLfloat
 vertex3 = GL.Vertex3

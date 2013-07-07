@@ -43,3 +43,8 @@ coord2 (L.V3 _ a _) = a
 
 coord3 :: L.V3 Double -> Double
 coord3 (L.V3 _ _ a) = a
+
+rotateXZ :: Double -> L.V3 Double -> L.V3 Double
+rotateXZ angle (L.V3 x y z) = L.V3 newx y newz
+  where newx = x * cos(angle) - z * sin(angle)
+        newz = x * sin(angle) + z * cos(angle)
