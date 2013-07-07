@@ -7,14 +7,7 @@ import System.Environment (getArgs, getProgName)
 
 data Action = Action (IO Action)
 
-main = do
-  -- invoke either active or passive drawing loop depending on command line argument
-  args <- getArgs
-  prog <- getProgName
-  case args of
-    ["active"]  -> putStrLn "Running in active mode" >> main' active
-    ["passive"] -> putStrLn "Running in passive mode" >> main' passive
-    _ -> putStrLn $ "USAGE: " ++ prog ++ " [active|passive]"
+main = main' active
  
 main' run = do
   GLFW.initialize
@@ -33,16 +26,18 @@ main' run = do
   -- set 2D orthogonal view inside windowSizeCallback because
   -- any change to the Window size should result in different
   -- OpenGL Viewport.
-  GLFW.windowSizeCallback $= \ size@(GL.Size w h) ->
-    do
+  GLFW.windowSizeCallback $= \ size@(GL.Size w h) -> do
       GL.viewport   $= (GL.Position 0 0, size)
       GL.matrixMode $= GL.Projection
       GL.loadIdentity
       GL.ortho2D 0 (realToFrac w) (realToFrac h) 0
+
   -- keep all line strokes as a list of points in an IORef
   lines <- newIORef []
+
   -- run the main loop
   run lines
+
   -- finish up
   GLFW.closeWindow
   GLFW.terminate
@@ -58,17 +53,16 @@ active lines = loop waitForPress
       GLFW.swapBuffers
       -- check whether ESC is pressed for termination
       p <- GLFW.getKey GLFW.ESC
-      unless (p == GLFW.Press) $
-        do
-            -- perform action
-            Action action' <- action
-            -- sleep for 1ms to yield CPU to other applications
-            GLFW.sleep 0.001
- 
-            -- only continue when the window is not closed
-            windowOpen <- getParam Opened
-            unless (not windowOpen) $
-              loop action' -- loop with next action
+      unless (p == GLFW.Press) $ do
+        -- perform action
+        Action action' <- action
+        -- sleep for 1ms to yield CPU to other applications
+        GLFW.sleep 0.001
+
+        -- only continue when the window is not closed
+        windowOpen <- getParam Opened
+        unless (not windowOpen) $
+        loop action' -- loop with next action
  
     waitForPress = do
       b <- GLFW.getMouseButton GLFW.ButtonLeft
@@ -93,76 +87,6 @@ active lines = loop waitForPress
           -- waitForPress action
           GLFW.Release -> return (Action waitForPress)
           GLFW.Press   -> return (Action waitForRelease)
-
-passive lines = do
-  -- disable auto polling in swapBuffers
-  GLFW.disableSpecial GLFW.AutoPollEvent
- 
-  -- keep track of whether ESC has been pressed
-  quit <- newIORef False
- 
-  -- keep track of whether screen needs to be redrawn
-  dirty <- newIORef True
- 
-  -- mark screen dirty in refresh callback which is often called
-  -- when screen or part of screen comes into visibility.
-  GLFW.windowRefreshCallback $= writeIORef dirty True
- 
-  -- use key callback to track whether ESC is pressed
-  GLFW.keyCallback $= \k s -> 
-     when (fromEnum k == fromEnum GLFW.ESC && s == GLFW.Press) $ 
-        writeIORef quit True
- 
-  -- Terminate the program if the window is closed
-  GLFW.windowCloseCallback $= (writeIORef quit True >> return True)
- 
-  -- by default start with waitForPress
-  waitForPress dirty
-  loop dirty quit
-  where
- 
-    loop dirty quit = do
-        GLFW.waitEvents
-        -- redraw screen if dirty
-        d <- readIORef dirty
- 
-        when d $ 
-          render lines >> GLFW.swapBuffers
- 
-        writeIORef dirty False
-        -- check if we need to quit the loop
-        q <- readIORef quit
-        unless q $
-          loop dirty quit
- 
-    waitForPress dirty =
-      do
-        GLFW.mousePosCallback    $= \_ -> return ()
- 
-        GLFW.mouseButtonCallback $= \b s -> 
-            when (b == GLFW.ButtonLeft && s == GLFW.Press) $
-              do
-                -- when left mouse button is pressed, add the point
-                -- to lines and switch to waitForRelease action.
-                (GL.Position x y) <- GL.get GLFW.mousePos
-                modifyIORef lines (((x,y):) . ((x,y):))
-                waitForRelease dirty
- 
-    waitForRelease dirty = 
-      do 
-        GLFW.mousePosCallback $= \(Position x y) ->
-          do
-            -- update the line with new ending position
-            modifyIORef lines (((x,y):) . tail)
-            -- mark screen dirty
-            writeIORef dirty True
- 
-        GLFW.mouseButtonCallback $= \b s ->
-            -- when left mouse button is released, switch back to
-            -- waitForPress action.
-            when (b == GLFW.ButtonLeft && s == GLFW.Release) $
-              waitForPress dirty
-
 
 render lines = do
   l <- readIORef lines
