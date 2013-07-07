@@ -1,8 +1,11 @@
+module Main where
+
 -- Global imports
 import Graphics.Rendering.OpenGL (($=))
 import Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL.GLU as GLU
 import Graphics.UI.GLFW as GLFW
+import Linear as L
 
 -- Local imports
 import State
@@ -21,6 +24,7 @@ main = do
       GL.matrixMode $= GL.Projection
       GL.loadIdentity
       GLU.perspective 90.0 ((fromIntegral w)/(fromIntegral h)) 0.1 100
+      GL.matrixMode $= GL.Modelview 0
 
   mainLoop initialState
 
@@ -38,15 +42,17 @@ mainLoop state = do
 render :: State -> IO ()
 render state = do
   GL.clear [GL.ColorBuffer]
+  GL.loadIdentity
+  GLU.lookAt (toVert3 $ pos state) (toVert3 $ center state) (toVec3 $ up state)
   GL.renderPrimitive GL.Triangles $ do
     GL.color  $ color3 1 0 0
-    GL.vertex $ vertex3 0.0 3.0 (-10)
-    GL.vertex $ vertex3 0.0 0.0 (-10)
-    GL.vertex $ vertex3 3.0 0.0 (-10)
+    GL.vertex $ vertex3 0.0 3.0 0
+    GL.vertex $ vertex3 0.0 0.0 0
+    GL.vertex $ vertex3 3.0 0.0 0
   
-    GL.vertex $ vertex3 0.0 3.0 (-10)
-    GL.vertex $ vertex3 3.0 0.0 (-10)
-    GL.vertex $ vertex3 3.0 3.0 (-10)
+    GL.vertex $ vertex3 0.0 3.0 0
+    GL.vertex $ vertex3 3.0 0.0 0
+    GL.vertex $ vertex3 3.0 3.0 0
 
     GL.vertex $ vertex3 0.0 3.0 (-20)
     GL.vertex $ vertex3 0.0 0.0 (-20)
@@ -73,13 +79,30 @@ processSpace state = do
 processEscape :: State -> IO State
 processEscape state = do
   p <- GLFW.getKey GLFW.ESC
-  if p == GLFW.Press then return $ state { shouldExit = True} else return state
+  if p == GLFW.Press then return $ state { shouldExit = True } else return state
+
+processKey :: Char -> (State -> State) -> State -> IO State
+processKey key action state = do
+  val <- GLFW.getKey key
+  if val == GLFW.Press then return $ action state else return state
+
+stateCombinator :: [State -> IO State] -> State -> IO State
+stateCombinator = flip $ foldr (=<<) . return
+
+processMove :: State -> IO State
+processMove state = stateCombinator [processA, processD, processW, processS] state
+  where crx = L.cross (direction state) (up state)
+        processA = processKey 'A' (\s -> s { pos = (pos s) + 0.05 * crx })
+        processD = processKey 'D' (\s -> s { pos = (pos s) + (-0.05) * crx })
+        processW = processKey 'W' (\s -> s { pos = (pos s) + 0.05 * (direction state) })
+        processS = processKey 'S' (\s -> s { pos = (pos s) + (-0.05) * (direction state) })
+--        processQ = processKey 'Q' (\s -> s { direction = (direction s) + 0.05 * (L.V3 (-1) 0 1 ) })
 
 processEvents :: State -> IO State
-processEvents state = processEscape =<< processSpace state
+processEvents state = processMove =<< processEscape =<< processSpace state
 
 vertex3 :: GLfloat -> GLfloat -> GLfloat -> GL.Vertex3 GLfloat
 vertex3 = GL.Vertex3
- 
+
 color3 :: GLfloat -> GLfloat -> GLfloat -> GL.Color3 GLfloat
 color3 = GL.Color3
