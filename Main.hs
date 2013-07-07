@@ -7,9 +7,7 @@ import System.Environment (getArgs, getProgName)
 
 data Action = Action (IO Action)
 
-main = main' active
- 
-main' run = do
+main = do
   GLFW.initialize
   -- open window
   GLFW.openWindow (GL.Size 400 400) [GLFW.DisplayAlphaBits 8] GLFW.Window
@@ -36,7 +34,7 @@ main' run = do
   lines <- newIORef []
 
   -- run the main loop
-  run lines
+  active lines
 
   -- finish up
   GLFW.closeWindow
@@ -45,7 +43,6 @@ main' run = do
 -- we start with waitForPress action
 active lines = loop waitForPress
   where 
- 
     loop action = do
       -- draw the entire screen
       render lines
@@ -62,7 +59,7 @@ active lines = loop waitForPress
         -- only continue when the window is not closed
         windowOpen <- getParam Opened
         unless (not windowOpen) $
-        loop action' -- loop with next action
+          loop action' -- loop with next action
  
     waitForPress = do
       b <- GLFW.getMouseButton GLFW.ButtonLeft
