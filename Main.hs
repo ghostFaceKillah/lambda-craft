@@ -23,6 +23,7 @@ main = do
 
   GL.lineSmooth $= GL.Enabled
   GL.clearColor $= GL.Color4 0.53 0.57 0.75 0
+  GL.cullFace $= Just GL.Front
  
   GLFW.windowSizeCallback $= \ size@(GL.Size w h) -> do
       GL.viewport   $= (GL.Position 0 0, size)
@@ -60,11 +61,11 @@ render = do
 
   liftIO $ GL.renderPrimitive GL.Triangles $ do
     GL.color $ color3 1 0 0
-    renderFace $ Face (L.V3 0 0 0) ZP
     renderFace $ Face (L.V3 0 0 0) XP
-    renderFace $ Face (L.V3 0 0 0) YM
-    renderFace $ Face (L.V3 0 0 0) YP
     renderFace $ Face (L.V3 0 0 0) XM
+    renderFace $ Face (L.V3 0 0 0) YP
+    renderFace $ Face (L.V3 0 0 0) YM
+    renderFace $ Face (L.V3 0 0 0) ZP
     renderFace $ Face (L.V3 0 0 0) ZM
 
 vertex3 :: GL.GLfloat -> GL.GLfloat -> GL.GLfloat -> GL.Vertex3 GL.GLfloat
