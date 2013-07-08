@@ -1,29 +1,36 @@
-module State where
+{-# LANGUAGE TemplateHaskell #-}
+module GameState where
 
-import Graphics.Rendering.OpenGL as GL
+import Control.Monad.Trans.State 
 import Foreign.C.Types
+import Graphics.Rendering.OpenGL as GL
 import Linear as L
+import Control.Lens
 
-data State = State {
-  stateLine  :: Bool,
-  wasPressed :: Bool,
-  shouldExit :: Bool,
-  pos        :: L.V3 Double,
-  direction  :: L.V3 Double,
-  up         :: L.V3 Double
-}
+data GameState = GameState {
+  _stateLine  :: Bool,
+  _wasPressed :: Bool,
+  _shouldExit :: Bool,
+  _pos        :: L.V3 Double,
+  _direction  :: L.V3 Double,
+  _up         :: L.V3 Double
+} deriving Show
 
-center :: State -> L.V3 Double
-center state = (pos state) + (direction state)
+makeLenses ''GameState
 
-initialState :: State
-initialState = State {
-  stateLine  = False,
-  wasPressed = False,
-  shouldExit = False,
-  pos        = L.V3 0 0 10,
-  direction  = L.V3 0 0 (-1),
-  up         = L.V3 0 1 0
+type GameMonad x = StateT GameState IO x
+
+center :: GameState -> L.V3 Double
+center state = (_pos state) + (_direction state)
+
+initialState :: GameState
+initialState = GameState {
+  _stateLine  = False,
+  _wasPressed = False,
+  _shouldExit = False,
+  _pos        = L.V3 0 0 10,
+  _direction  = L.V3 0 0 (-1),
+  _up         = L.V3 0 1 0
 }
 
 convDouble :: Foreign.C.Types.CDouble -> Double
