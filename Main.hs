@@ -60,54 +60,12 @@ render = do
 
   liftIO $ GL.renderPrimitive GL.Triangles $ do
     GL.color $ color3 1 0 0
+    renderFace $ Face (L.V3 0 0 0) ZP
+    renderFace $ Face (L.V3 0 0 0) XP
+    renderFace $ Face (L.V3 0 0 0) YM
+    renderFace $ Face (L.V3 0 0 0) YP
+    renderFace $ Face (L.V3 0 0 0) XM
     renderFace $ Face (L.V3 0 0 0) ZM
-      --GL.vertex $ vertex3 0 3 0
-      --GL.vertex $ vertex3 0 0 0
-      --GL.vertex $ vertex3 3 0 0
-    
-      --GL.vertex $ vertex3 0 3 0
-      --GL.vertex $ vertex3 3 0 0
-      --GL.vertex $ vertex3 3 3 0
 
-      --GL.vertex $ vertex3 0 3 3
-      --GL.vertex $ vertex3 0 0 3
-      --GL.vertex $ vertex3 3 0 3
-    
-      --GL.vertex $ vertex3 0 3 3
-      --GL.vertex $ vertex3 3 0 3
-      --GL.vertex $ vertex3 3 3 3
-
-      --GL.vertex $ vertex3 3 0 0
-      --GL.vertex $ vertex3 3 0 3
-      --GL.vertex $ vertex3 3 3 3
-
-      --GL.vertex $ vertex3 3 0 0
-      --GL.vertex $ vertex3 3 3 0
-      --GL.vertex $ vertex3 3 3 3
-
-      --GL.vertex $ vertex3 0 0 0
-      --GL.vertex $ vertex3 0 0 3
-      --GL.vertex $ vertex3 0 3 3
-
-      --GL.vertex $ vertex3 0 0 0
-      --GL.vertex $ vertex3 0 3 0
-      --GL.vertex $ vertex3 0 3 3
-
-      --GL.vertex $ vertex3 0 3 0
-      --GL.vertex $ vertex3 3 3 0
-      --GL.vertex $ vertex3 0 3 3
-
-      --GL.vertex $ vertex3 3 3 3
-      --GL.vertex $ vertex3 3 3 0
-      --GL.vertex $ vertex3 0 3 3
-
-      --GL.vertex $ vertex3 0 0 0
-      --GL.vertex $ vertex3 3 0 0
-      --GL.vertex $ vertex3 0 0 3
-
-      --GL.vertex $ vertex3 3 0 3
-      --GL.vertex $ vertex3 3 0 0
-      --GL.vertex $ vertex3 0 0 3
-      --
 vertex3 :: GL.GLfloat -> GL.GLfloat -> GL.GLfloat -> GL.Vertex3 GL.GLfloat
 vertex3 = GL.Vertex3

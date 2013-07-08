@@ -29,6 +29,52 @@ renderFace (Face coord ZM) = do
   GL.vertex $ vertex3d (coord^._x+0.5) (coord^._y+0.5) (coord^._z - 0.5)
   GL.vertex $ vertex3d (coord^._x+0.5) (coord^._y-0.5) (coord^._z - 0.5)
 
+renderFace (Face coord ZP) = do
+  GL.vertex $ vertex3d (coord^._x-0.5) (coord^._y+0.5) (coord^._z + 0.5)
+  GL.vertex $ vertex3d (coord^._x+0.5) (coord^._y-0.5) (coord^._z + 0.5)
+  GL.vertex $ vertex3d (coord^._x-0.5) (coord^._y-0.5) (coord^._z + 0.5)
+
+  GL.vertex $ vertex3d (coord^._x-0.5) (coord^._y+0.5) (coord^._z + 0.5)
+  GL.vertex $ vertex3d (coord^._x+0.5) (coord^._y+0.5) (coord^._z + 0.5)
+  GL.vertex $ vertex3d (coord^._x+0.5) (coord^._y-0.5) (coord^._z + 0.5)
+
+renderFace (Face coord XP) = do
+  GL.vertex $ vertex3d (coord^._x+0.5) (coord^._y-0.5) (coord^._z + 0.5)
+  GL.vertex $ vertex3d (coord^._x+0.5) (coord^._y+0.5) (coord^._z + 0.5)
+  GL.vertex $ vertex3d (coord^._x+0.5) (coord^._y+0.5) (coord^._z - 0.5)
+
+  GL.vertex $ vertex3d (coord^._x+0.5) (coord^._y-0.5) (coord^._z - 0.5)
+  GL.vertex $ vertex3d (coord^._x+0.5) (coord^._y+0.5) (coord^._z - 0.5)
+  GL.vertex $ vertex3d (coord^._x+0.5) (coord^._y-0.5) (coord^._z + 0.5)
+
+renderFace (Face coord XM) = do
+  GL.vertex $ vertex3d (coord^._x-0.5) (coord^._y-0.5) (coord^._z - 0.5)
+  GL.vertex $ vertex3d (coord^._x-0.5) (coord^._y+0.5) (coord^._z + 0.5)
+  GL.vertex $ vertex3d (coord^._x-0.5) (coord^._y+0.5) (coord^._z - 0.5)
+
+  GL.vertex $ vertex3d (coord^._x-0.5) (coord^._y-0.5) (coord^._z - 0.5)
+  GL.vertex $ vertex3d (coord^._x-0.5) (coord^._y+0.5) (coord^._z + 0.5)
+  GL.vertex $ vertex3d (coord^._x-0.5) (coord^._y-0.5) (coord^._z + 0.5)
+
+
+renderFace (Face coord YM) = do
+  GL.vertex $ vertex3d (coord^._x+0.5) (coord^._y-0.5) (coord^._z + 0.5)
+  GL.vertex $ vertex3d (coord^._x+0.5) (coord^._y-0.5) (coord^._z - 0.5)
+  GL.vertex $ vertex3d (coord^._x-0.5) (coord^._y-0.5) (coord^._z - 0.5)
+
+  GL.vertex $ vertex3d (coord^._x+0.5) (coord^._y-0.5) (coord^._z + 0.5)
+  GL.vertex $ vertex3d (coord^._x-0.5) (coord^._y-0.5) (coord^._z - 0.5)
+  GL.vertex $ vertex3d (coord^._x-0.5) (coord^._y-0.5) (coord^._z + 0.5)
+
+renderFace (Face coord YP) = do
+  GL.vertex $ vertex3d (coord^._x+0.5) (coord^._y+0.5) (coord^._z - 0.5)
+  GL.vertex $ vertex3d (coord^._x-0.5) (coord^._y+0.5) (coord^._z + 0.5)
+  GL.vertex $ vertex3d (coord^._x-0.5) (coord^._y+0.5) (coord^._z - 0.5)
+
+  GL.vertex $ vertex3d (coord^._x+0.5) (coord^._y+0.5) (coord^._z - 0.5)
+  GL.vertex $ vertex3d (coord^._x-0.5) (coord^._y+0.5) (coord^._z + 0.5)
+  GL.vertex $ vertex3d (coord^._x+0.5) (coord^._y+0.5) (coord^._z + 0.5)
+
 vertex3 :: GL.GLfloat -> GL.GLfloat -> GL.GLfloat -> GL.Vertex3 GL.GLfloat
 vertex3 = GL.Vertex3
 
