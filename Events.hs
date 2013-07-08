@@ -18,7 +18,7 @@ processSpace = do
   space <- liftIO $ GLFW.getKey ' '
   pressed <- use wasPressed
 
-  if space == GLFW.Press then do
+  if space == GLFW.Press then
     unless pressed $ do
       wasPressed .= True
       stateLine %= not
@@ -55,7 +55,6 @@ processRotation = stateCombinator [processQ, processE]
   where phi = pi/360
         processQ = processKey 'Q' $ direction %= rotateXZ (-phi)
         processE = processKey 'E' $ direction %= rotateXZ phi
-
 
 processEvents :: GameMonad ()
 processEvents = stateCombinator [processEscape, processSpace, processMove, processRotation]
