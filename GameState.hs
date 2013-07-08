@@ -20,9 +20,6 @@ makeLenses ''GameState
 
 type GameMonad x = StateT GameState IO x
 
-center :: GameState -> L.V3 Double
-center state = (_pos state) + (_direction state)
-
 initialState :: GameState
 initialState = GameState {
   _stateLine  = False,
@@ -32,9 +29,6 @@ initialState = GameState {
   _direction  = L.V3 0 0 (-1),
   _up         = L.V3 0 1 0
 }
-
-convDouble :: Foreign.C.Types.CDouble -> Double
-convDouble (Foreign.C.Types.CDouble x) = x
 
 toVert3 :: L.V3 Double -> GL.Vertex3 GLdouble
 toVert3 (L.V3 x y z) = GL.Vertex3 (CDouble x) (CDouble y) (CDouble z)
