@@ -1,14 +1,18 @@
 module Main where
 
 -- Global imports
+import Control.Lens
+import Control.Monad
+import Control.Monad.State
 import Graphics.Rendering.OpenGL (($=))
-import Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL.GLU as GLU
 import Graphics.UI.GLFW as GLFW
 import Linear as L
+import qualified Graphics.Rendering.OpenGL as GL
 
 -- Local imports
-import State
+import GameState
+import Events
 
 main = do
   GLFW.initialize
@@ -17,7 +21,7 @@ main = do
   GL.shadeModel    $= GL.Smooth
 
   GL.lineSmooth $= GL.Enabled
-  GL.clearColor $= Color4 0.53 0.57 0.75 0
+  GL.clearColor $= GL.Color4 0.53 0.57 0.75 0
  
   GLFW.windowSizeCallback $= \ size@(GL.Size w h) -> do
       GL.viewport   $= (GL.Position 0 0, size)
@@ -26,82 +30,86 @@ main = do
       GLU.perspective 90.0 ((fromIntegral w)/(fromIntegral h)) 0.1 100
       GL.matrixMode $= GL.Modelview 0
 
-  mainLoop initialState
+  runStateT mainLoop initialState
 
   GLFW.closeWindow
   GLFW.terminate
 
-mainLoop :: State -> IO State
-mainLoop state = do
-  render state
-  GLFW.swapBuffers
+mainLoop :: GameMonad ()
+mainLoop = do
+  render
+  liftIO GLFW.swapBuffers
 
-  newState <- processEvents state
-  if shouldExit newState then return newState else mainLoop newState
+  processEvents
+  exit <- use shouldExit
+  unless exit mainLoop
 
-render :: State -> IO ()
-render state = do
-  GL.clear [GL.ColorBuffer]
-  GL.loadIdentity
-  GLU.lookAt (toVert3 $ pos state) (toVert3 $ center state) (toVec3 $ up state)
-  GL.renderPrimitive GL.Triangles $ do
-    GL.color  $ color3 1 0 0
-    GL.vertex $ vertex3 0.0 3.0 0
-    GL.vertex $ vertex3 0.0 0.0 0
-    GL.vertex $ vertex3 3.0 0.0 0
-  
-    GL.vertex $ vertex3 0.0 3.0 0
-    GL.vertex $ vertex3 3.0 0.0 0
-    GL.vertex $ vertex3 3.0 3.0 0
+setCamera :: GameMonad ()
+setCamera = do
+  eye <- use pos
+  dir <- use direction
+  updir <- use up
+  liftIO $ GLU.lookAt (toVert3 eye) (toVert3 $ eye + dir) (toVec3 updir)
 
-    GL.vertex $ vertex3 0.0 3.0 (-20)
-    GL.vertex $ vertex3 0.0 0.0 (-20)
-    GL.vertex $ vertex3 3.0 0.0 (-20)
-  
-    GL.vertex $ vertex3 0.0 3.0 (-20)
-    GL.vertex $ vertex3 3.0 0.0 (-20)
-    GL.vertex $ vertex3 3.0 3.0 (-20)
+render :: GameMonad ()
+render = do
+  liftIO $ GL.clear [GL.ColorBuffer]
+  liftIO GL.loadIdentity
+  setCamera
 
-setPolygonMode :: Bool -> IO ()
-setPolygonMode flag = GL.polygonMode $= (if flag then (GL.Line, GL.Line) else (GL.Fill, GL.Fill))
+  liftIO $ GL.renderPrimitive GL.Triangles $ do
+      GL.color  $ color3 1 0 0
+      GL.vertex $ vertex3 0 3 0
+      GL.vertex $ vertex3 0 0 0
+      GL.vertex $ vertex3 3 0 0
+    
+      GL.vertex $ vertex3 0 3 0
+      GL.vertex $ vertex3 3 0 0
+      GL.vertex $ vertex3 3 3 0
 
-processSpace :: State -> IO State
-processSpace state = do
-  space <- GLFW.getKey ' '
-  if space == GLFW.Press then do
-    if wasPressed state then return state else do
-      let newState = state { wasPressed = True, stateLine = not (stateLine state) }
-      setPolygonMode $ stateLine newState
-      return newState
-  else if wasPressed state then return $ state { wasPressed = False } else return state
+      GL.vertex $ vertex3 0 3 3
+      GL.vertex $ vertex3 0 0 3
+      GL.vertex $ vertex3 3 0 3
+    
+      GL.vertex $ vertex3 0 3 3
+      GL.vertex $ vertex3 3 0 3
+      GL.vertex $ vertex3 3 3 3
 
-processEscape :: State -> IO State
-processEscape state = do
-  p <- GLFW.getKey GLFW.ESC
-  if p == GLFW.Press then return $ state { shouldExit = True } else return state
+      GL.vertex $ vertex3 3 0 0
+      GL.vertex $ vertex3 3 0 3
+      GL.vertex $ vertex3 3 3 3
 
-processKey :: Char -> (State -> State) -> State -> IO State
-processKey key action state = do
-  val <- GLFW.getKey key
-  if val == GLFW.Press then return $ action state else return state
+      GL.vertex $ vertex3 3 0 0
+      GL.vertex $ vertex3 3 3 0
+      GL.vertex $ vertex3 3 3 3
 
-stateCombinator :: [State -> IO State] -> State -> IO State
-stateCombinator = flip $ foldr (=<<) . return
+      GL.vertex $ vertex3 0 0 0
+      GL.vertex $ vertex3 0 0 3
+      GL.vertex $ vertex3 0 3 3
 
-processMove :: State -> IO State
-processMove state = stateCombinator [processA, processD, processW, processS] state
-  where crx = L.cross (direction state) (up state)
-        processA = processKey 'A' (\s -> s { pos = (pos s) + 0.05 * crx })
-        processD = processKey 'D' (\s -> s { pos = (pos s) + (-0.05) * crx })
-        processW = processKey 'W' (\s -> s { pos = (pos s) + 0.05 * (direction state) })
-        processS = processKey 'S' (\s -> s { pos = (pos s) + (-0.05) * (direction state) })
-        processQ = processKey 'Q' (\s -> s { direction = (direction s) + 0.05 * (L.V3 (-1) 0 1 ) })
+      GL.vertex $ vertex3 0 0 0
+      GL.vertex $ vertex3 0 3 0
+      GL.vertex $ vertex3 0 3 3
 
-processEvents :: State -> IO State
-processEvents state = processMove =<< processEscape =<< processSpace state
+      GL.vertex $ vertex3 0 3 0
+      GL.vertex $ vertex3 3 3 0
+      GL.vertex $ vertex3 0 3 3
 
-vertex3 :: GLfloat -> GLfloat -> GLfloat -> GL.Vertex3 GLfloat
+      GL.vertex $ vertex3 3 3 3
+      GL.vertex $ vertex3 3 3 0
+      GL.vertex $ vertex3 0 3 3
+
+      GL.vertex $ vertex3 0 0 0
+      GL.vertex $ vertex3 3 0 0
+      GL.vertex $ vertex3 0 0 3
+
+      GL.vertex $ vertex3 3 0 3
+      GL.vertex $ vertex3 3 0 0
+      GL.vertex $ vertex3 0 0 3
+
+vertex3 :: GL.GLfloat -> GL.GLfloat -> GL.GLfloat -> GL.Vertex3 GL.GLfloat
+>>>>>>> 63f10ae2d582c5e842e39c4aafe193d396098201
 vertex3 = GL.Vertex3
 
-color3 :: GLfloat -> GLfloat -> GLfloat -> GL.Color3 GLfloat
+color3 :: GL.GLfloat -> GL.GLfloat -> GL.GLfloat -> GL.Color3 GL.GLfloat
 color3 = GL.Color3
