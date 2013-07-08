@@ -62,7 +62,6 @@ render state = do
     GL.vertex $ vertex3 3.0 0.0 (-20)
     GL.vertex $ vertex3 3.0 3.0 (-20)
 
-
 setPolygonMode :: Bool -> IO ()
 setPolygonMode flag = GL.polygonMode $= (if flag then (GL.Line, GL.Line) else (GL.Fill, GL.Fill))
 
@@ -96,7 +95,7 @@ processMove state = stateCombinator [processA, processD, processW, processS] sta
         processD = processKey 'D' (\s -> s { pos = (pos s) + (-0.05) * crx })
         processW = processKey 'W' (\s -> s { pos = (pos s) + 0.05 * (direction state) })
         processS = processKey 'S' (\s -> s { pos = (pos s) + (-0.05) * (direction state) })
---        processQ = processKey 'Q' (\s -> s { direction = (direction s) + 0.05 * (L.V3 (-1) 0 1 ) })
+        processQ = processKey 'Q' (\s -> s { direction = (direction s) + 0.05 * (L.V3 (-1) 0 1 ) })
 
 processEvents :: State -> IO State
 processEvents state = processMove =<< processEscape =<< processSpace state
