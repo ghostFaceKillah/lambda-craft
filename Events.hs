@@ -38,14 +38,16 @@ stateCombinator = foldr (>>) $ return ()
 
 processMove :: GameMonad ()
 processMove = do
+  crx    <- liftM2 L.cross (use direction) (use up)
   dirvec <- use direction
-  upvec <- use up
-  let crx = L.cross dirvec upvec
+
   let moveSpeed = 0.05
+
   let processA = processKey 'A' $ pos -= moveSpeed * crx
   let processD = processKey 'D' $ pos += moveSpeed * crx
   let processW = processKey 'W' $ pos += moveSpeed * dirvec
   let processS = processKey 'S' $ pos -= moveSpeed * dirvec
+
   stateCombinator [processA, processD, processW, processS]
 
 processRotation :: GameMonad ()
