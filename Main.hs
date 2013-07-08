@@ -11,8 +11,9 @@ import Linear as L
 import qualified Graphics.Rendering.OpenGL as GL
 
 -- Local imports
-import GameState
+import Cube
 import Events
+import GameState
 
 main = do
   GLFW.initialize
@@ -58,58 +59,55 @@ render = do
   setCamera
 
   liftIO $ GL.renderPrimitive GL.Triangles $ do
-      GL.color  $ color3 1 0 0
-      GL.vertex $ vertex3 0 3 0
-      GL.vertex $ vertex3 0 0 0
-      GL.vertex $ vertex3 3 0 0
+    GL.color $ color3 1 0 0
+    renderFace $ Face (L.V3 0 0 0) ZM
+      --GL.vertex $ vertex3 0 3 0
+      --GL.vertex $ vertex3 0 0 0
+      --GL.vertex $ vertex3 3 0 0
     
-      GL.vertex $ vertex3 0 3 0
-      GL.vertex $ vertex3 3 0 0
-      GL.vertex $ vertex3 3 3 0
+      --GL.vertex $ vertex3 0 3 0
+      --GL.vertex $ vertex3 3 0 0
+      --GL.vertex $ vertex3 3 3 0
 
-      GL.vertex $ vertex3 0 3 3
-      GL.vertex $ vertex3 0 0 3
-      GL.vertex $ vertex3 3 0 3
+      --GL.vertex $ vertex3 0 3 3
+      --GL.vertex $ vertex3 0 0 3
+      --GL.vertex $ vertex3 3 0 3
     
-      GL.vertex $ vertex3 0 3 3
-      GL.vertex $ vertex3 3 0 3
-      GL.vertex $ vertex3 3 3 3
+      --GL.vertex $ vertex3 0 3 3
+      --GL.vertex $ vertex3 3 0 3
+      --GL.vertex $ vertex3 3 3 3
 
-      GL.vertex $ vertex3 3 0 0
-      GL.vertex $ vertex3 3 0 3
-      GL.vertex $ vertex3 3 3 3
+      --GL.vertex $ vertex3 3 0 0
+      --GL.vertex $ vertex3 3 0 3
+      --GL.vertex $ vertex3 3 3 3
 
-      GL.vertex $ vertex3 3 0 0
-      GL.vertex $ vertex3 3 3 0
-      GL.vertex $ vertex3 3 3 3
+      --GL.vertex $ vertex3 3 0 0
+      --GL.vertex $ vertex3 3 3 0
+      --GL.vertex $ vertex3 3 3 3
 
-      GL.vertex $ vertex3 0 0 0
-      GL.vertex $ vertex3 0 0 3
-      GL.vertex $ vertex3 0 3 3
+      --GL.vertex $ vertex3 0 0 0
+      --GL.vertex $ vertex3 0 0 3
+      --GL.vertex $ vertex3 0 3 3
 
-      GL.vertex $ vertex3 0 0 0
-      GL.vertex $ vertex3 0 3 0
-      GL.vertex $ vertex3 0 3 3
+      --GL.vertex $ vertex3 0 0 0
+      --GL.vertex $ vertex3 0 3 0
+      --GL.vertex $ vertex3 0 3 3
 
-      GL.vertex $ vertex3 0 3 0
-      GL.vertex $ vertex3 3 3 0
-      GL.vertex $ vertex3 0 3 3
+      --GL.vertex $ vertex3 0 3 0
+      --GL.vertex $ vertex3 3 3 0
+      --GL.vertex $ vertex3 0 3 3
 
-      GL.vertex $ vertex3 3 3 3
-      GL.vertex $ vertex3 3 3 0
-      GL.vertex $ vertex3 0 3 3
+      --GL.vertex $ vertex3 3 3 3
+      --GL.vertex $ vertex3 3 3 0
+      --GL.vertex $ vertex3 0 3 3
 
-      GL.vertex $ vertex3 0 0 0
-      GL.vertex $ vertex3 3 0 0
-      GL.vertex $ vertex3 0 0 3
+      --GL.vertex $ vertex3 0 0 0
+      --GL.vertex $ vertex3 3 0 0
+      --GL.vertex $ vertex3 0 0 3
 
-      GL.vertex $ vertex3 3 0 3
-      GL.vertex $ vertex3 3 0 0
-      GL.vertex $ vertex3 0 0 3
-
+      --GL.vertex $ vertex3 3 0 3
+      --GL.vertex $ vertex3 3 0 0
+      --GL.vertex $ vertex3 0 0 3
+      --
 vertex3 :: GL.GLfloat -> GL.GLfloat -> GL.GLfloat -> GL.Vertex3 GL.GLfloat
->>>>>>> 63f10ae2d582c5e842e39c4aafe193d396098201
 vertex3 = GL.Vertex3
-
-color3 :: GL.GLfloat -> GL.GLfloat -> GL.GLfloat -> GL.Color3 GL.GLfloat
-color3 = GL.Color3
