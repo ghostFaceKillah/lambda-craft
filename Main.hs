@@ -23,7 +23,6 @@ main = do
 
   GL.lineSmooth $= GL.Enabled
   GL.clearColor $= GL.Color4 0.53 0.57 0.75 0
-  GL.cullFace $= Just GL.Front
  
   GLFW.windowSizeCallback $= \ size@(GL.Size w h) -> do
       GL.viewport   $= (GL.Position 0 0, size)
@@ -61,12 +60,8 @@ render = do
 
   liftIO $ GL.renderPrimitive GL.Triangles $ do
     GL.color $ color3 1 0 0
-    renderFace $ Face (L.V3 0 0 0) XP
-    renderFace $ Face (L.V3 0 0 0) XM
-    renderFace $ Face (L.V3 0 0 0) YP
-    renderFace $ Face (L.V3 0 0 0) YM
-    renderFace $ Face (L.V3 0 0 0) ZP
-    renderFace $ Face (L.V3 0 0 0) ZM
+    let terrainMatrix = [(a,b,c)| [a,b,c] <- (replicateM 3 [-10..10]), c+b <= 2, a+b <= -3, 0.5*a-b >= 5,   b < 0, b >= -10  ]
+    mapM_ renderCube [Cube (L.V3 a b c) | (a,b,c) <- terrainMatrix ]
 
 vertex3 :: GL.GLfloat -> GL.GLfloat -> GL.GLfloat -> GL.Vertex3 GL.GLfloat
 vertex3 = GL.Vertex3

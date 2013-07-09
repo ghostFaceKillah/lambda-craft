@@ -19,6 +19,9 @@ allDirections = [minBound .. maxBound]
 refineCube :: Cube -> [Face]
 refineCube (Cube coord) = map (Face coord) allDirections
 
+renderCube :: Cube -> IO ()
+renderCube = mapM_ renderFace . refineCube
+
 renderFace :: Face -> IO ()
 renderFace (Face coord ZM) = do
   GL.vertex $ vertex3d (coord^._x-0.5) (coord^._y-0.5) (coord^._z - 0.5)
