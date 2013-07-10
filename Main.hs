@@ -32,10 +32,21 @@ main = do
       GLU.perspective 90.0 ((fromIntegral w)/(fromIntegral h)) 0.1 100
       GL.matrixMode $= GL.Modelview 0
 
-  runStateT mainLoop initialState
+  runStateT game initialState
 
   GLFW.closeWindow
   GLFW.terminate
+
+game :: GameMonad ()
+game = do
+  initialization
+  mainLoop
+
+initialization :: GameMonad ()
+initialization = do
+  terrainMatrix <- liftIO getMatrix
+  terrain .= terrainMatrix
+  return ()
 
 mainLoop :: GameMonad ()
 mainLoop = do
@@ -59,9 +70,10 @@ render = do
   liftIO GL.loadIdentity
   setCamera
 
+  terrainMatrix <- use terrain
+
   liftIO $ GL.renderPrimitive GL.Triangles $ do
     GL.color $ color3 1 0 0
-    terrainMatrix <- getMatrix
     mapM_ renderCube [Cube (L.V3 a b c) | (a,b,c) <- terrainMatrix ]
 
 vertex3 :: GL.GLfloat -> GL.GLfloat -> GL.GLfloat -> GL.Vertex3 GL.GLfloat

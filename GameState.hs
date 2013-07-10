@@ -13,7 +13,8 @@ data GameState = GameState {
   _shouldExit :: Bool,
   _pos        :: L.V3 Double,
   _direction  :: L.V3 Double,
-  _up         :: L.V3 Double
+  _up         :: L.V3 Double,
+  _terrain    :: [(Double, Double, Double)]
 } deriving Show
 
 makeLenses ''GameState
@@ -27,7 +28,8 @@ initialState = GameState {
   _shouldExit = False,
   _pos        = L.V3 0 0 10,
   _direction  = L.V3 0 0 (-1),
-  _up         = L.V3 0 1 0
+  _up         = L.V3 0 1 0,
+  _terrain    = []
 }
 
 toVert3 :: L.V3 Double -> GL.Vertex3 GLdouble
