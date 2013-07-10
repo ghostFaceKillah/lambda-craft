@@ -14,6 +14,7 @@ import qualified Graphics.Rendering.OpenGL as GL
 import Cube
 import Events
 import GameState
+import TerrainGeneration
 
 main = do
   GLFW.initialize
@@ -60,7 +61,7 @@ render = do
 
   liftIO $ GL.renderPrimitive GL.Triangles $ do
     GL.color $ color3 1 0 0
-    let terrainMatrix = [(a,b,c)| [a,b,c] <- (replicateM 3 [-10..10]), c+b <= 2, a+b <= -3, 0.5*a-b >= 5,   b < 0, b >= -10  ]
+    terrainMatrix <- getMatrix
     mapM_ renderCube [Cube (L.V3 a b c) | (a,b,c) <- terrainMatrix ]
 
 vertex3 :: GL.GLfloat -> GL.GLfloat -> GL.GLfloat -> GL.Vertex3 GL.GLfloat
