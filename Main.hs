@@ -20,18 +20,7 @@ main = do
   GLFW.initialize
   GLFW.openWindow (GL.Size 800 600) [GLFW.DisplayAlphaBits 8] GLFW.Window
   GLFW.windowTitle $= "Lambda-Craft"
-  GL.shadeModel    $= GL.Smooth
-
-  GL.lineSmooth $= GL.Enabled
-  GL.clearColor $= GL.Color4 0.53 0.57 0.75 0
  
-  GLFW.windowSizeCallback $= \ size@(GL.Size w h) -> do
-      GL.viewport   $= (GL.Position 0 0, size)
-      GL.matrixMode $= GL.Projection
-      GL.loadIdentity
-      GLU.perspective 90.0 ((fromIntegral w)/(fromIntegral h)) 0.1 100
-      GL.matrixMode $= GL.Modelview 0
-
   runStateT game initialState
 
   GLFW.closeWindow
@@ -42,11 +31,24 @@ game = do
   initialization
   mainLoop
 
+resizeCallback :: GL.Size -> IO ()
+resizeCallback size@(GL.Size w h) = do
+  GL.viewport   $= (GL.Position 0 0, size)
+  GL.matrixMode $= GL.Projection
+  GL.loadIdentity
+  GLU.perspective 90.0 ((fromIntegral w)/(fromIntegral h)) 0.1 100
+  GL.matrixMode $= GL.Modelview 0
+
 initialization :: GameMonad ()
 initialization = do
+  liftIO $ do
+    GL.lineSmooth $= GL.Enabled
+    GL.clearColor $= GL.Color4 0.53 0.57 0.75 0
+    GL.shadeModel $= GL.Smooth
+    GLFW.windowSizeCallback $= resizeCallback
+
   terrainMatrix <- liftIO getMatrix
   terrain .= terrainMatrix
-  return ()
 
 mainLoop :: GameMonad ()
 mainLoop = do
