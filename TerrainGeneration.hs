@@ -5,8 +5,8 @@ import Control.Monad.Random
 import System.Random
 import GHC.Float
 
-cons = 0.1
-cons2 = 4.0
+cons = 0.4
+cons2 = 6.0
 
 getRandom22Matrix :: Rand StdGen [[Float]]
 getRandom22Matrix = do
@@ -74,6 +74,6 @@ turnIntoDoubles x = [(int2Double a,int2Double b,int2Double c) | (a,b,c) <-x]
 
 getMatrix :: IO [(Double,Double,Double)]
 getMatrix = do
-  x <- evalRandIO $  getRandom22Matrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= roundRandomMatrix
+  x <- evalRandIO $  getRandom22Matrix >>=  interpolateRandomMatrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= roundRandomMatrix
   let y = turnIntoDoubles( turn x)
   return y

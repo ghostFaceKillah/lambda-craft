@@ -61,15 +61,34 @@ mainLoop = do
 
 setCamera :: GameMonad ()
 setCamera = do
+  g <- use gravity
+  v <- use speed
   eye <- use pos
   dir <- use direction
   updir <- use up
+  feetOnGround <- use onGround
+  when (not feetOnGround) $ do speed .= v + g
+                               pos .= eye + v
+  when feetOnGround $ do speed .= L.V3 0 0 0
   liftIO $ GLU.lookAt (toVert3 eye) (toVert3 $ eye + dir) (toVec3 updir)
+
+detectCollisionWithEarth :: GameMonad ()
+detectCollisionWithEarth = do
+  eye <- use pos
+  ter <- use terrain
+  if (detectCollision eye ter) then onGround .= True
+                               else onGround .= False
+  return ()
+
+detectCollision :: L.V3 Double -> [(Double,Double,Double)] -> Bool
+detectCollision (L.V3 a b c) d = not ( null [(x,y,z)| (x,y,z) <- d, abs(a-x) < 0.5, abs(b-y) <0.5, abs(c-z)<0.5 ] )
+
 
 render :: GameMonad ()
 render = do
   liftIO $ GL.clear [GL.ColorBuffer]
   liftIO GL.loadIdentity
+  detectCollisionWithEarth
   setCamera
 
   terrainMatrix <- use terrain

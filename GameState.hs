@@ -14,22 +14,30 @@ data GameState = GameState {
   _pos        :: L.V3 Double,
   _direction  :: L.V3 Double,
   _up         :: L.V3 Double,
-  _terrain    :: [(Double, Double, Double)]
+  _terrain    :: [(Double, Double, Double)],
+  _speed      :: L.V3 Double,
+  _gravity    :: L.V3 Double,
+  _onGround   :: Bool
 } deriving Show
 
 makeLenses ''GameState
 
 type GameMonad x = StateT GameState IO x
 
+g_const = 0.01
 initialState :: GameState
 initialState = GameState {
   _stateLine  = False,
   _wasPressed = False,
   _shouldExit = False,
-  _pos        = L.V3 0 0 10,
+  _pos        = L.V3 5 5 10,
   _direction  = L.V3 0 0 (-1),
   _up         = L.V3 0 1 0,
-  _terrain    = []
+  _terrain    = [],
+  _speed      = L.V3 0 0 0,
+  _gravity    = L.V3 0 (-g_const) 0,
+  _onGround   = False
+  
 }
 
 toVert3 :: L.V3 Double -> GL.Vertex3 GLdouble
