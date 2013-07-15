@@ -67,6 +67,7 @@ setCamera = do
   feetOnGround <- use onGround
   when (not feetOnGround) $ do speed .= v + g
                                pos .= eye + v
+  when feetOnGround $ do speed .= L.V3 0 0 0
   liftIO $ GLU.lookAt (toVert3 eye) (toVert3 $ eye + dir) (toVec3 updir)
 
 detectCollisionWithEarth :: GameMonad ()

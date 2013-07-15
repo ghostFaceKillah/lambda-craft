@@ -24,7 +24,7 @@ makeLenses ''GameState
 
 type GameMonad x = StateT GameState IO x
 
-g_const = 0.001
+g_const = 0.01
 initialState :: GameState
 initialState = GameState {
   _stateLine  = False,
