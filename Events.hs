@@ -53,12 +53,11 @@ processMove = do
 processMouse :: GameMonad ()
 processMouse = do
   (GL.Position x y) <- liftIO $  GL.get GLFW.mousePos
-  (a,b) <- use mouseDir
   let x1 = fromIntegral x
   let y1 = fromIntegral y
-  let howMuch = (x1 - a)/300
+  let howMuch = (x1 - 200)/300
   direction %= rotateXZ(howMuch)
-  mouseDir .= (x1,y1)
+  liftIO $ GLFW.mousePos $= (GL.Position 200 200)
   liftIO $ print x
 
 processRotation :: GameMonad ()
