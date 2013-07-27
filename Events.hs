@@ -50,6 +50,17 @@ processMove = do
 
   stateCombinator [processA, processD, processW, processS]
 
+processMouse :: GameMonad ()
+processMouse = do
+  (GL.Position x y) <- liftIO $  GL.get GLFW.mousePos
+  (a,b) <- use mouseDir
+  let x1 = fromIntegral x
+  let y1 = fromIntegral y
+  let howMuch = (x1 - a)/300
+  direction %= rotateXZ(howMuch)
+  mouseDir .= (x1,y1)
+  liftIO $ print x
+
 processRotation :: GameMonad ()
 processRotation = stateCombinator [processQ, processE]
   where phi = pi/140
@@ -57,4 +68,4 @@ processRotation = stateCombinator [processQ, processE]
         processE = processKey 'E' $ direction %= rotateXZ phi
 
 processEvents :: GameMonad ()
-processEvents = stateCombinator [processEscape, processSpace, processMove, processRotation]
+processEvents = stateCombinator [processEscape, processSpace, processMove, processRotation, processMouse]

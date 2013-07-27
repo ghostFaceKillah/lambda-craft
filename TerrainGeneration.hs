@@ -75,5 +75,4 @@ fromMatrixIntoTriplesList inp =  [(x,y,z) | (x,a) <- zip [bottom, bottom + 1 ..]
 getMatrix :: IO [[[Int]]]
 getMatrix = do
   x <- evalRandIO $  getRandom22Matrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= roundRandomMatrix
-  -- x <- evalRandIO $  getRandom22Matrix >>=  interpolateRandomMatrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= roundRandomMatrix
   return $ turnTerrainContourIntoTerrainMatrix x
