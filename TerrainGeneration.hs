@@ -21,9 +21,9 @@ interpolateRandRows [] = return []
 interpolateRandRows a = do
   remain <- interpolateRandRows(tail a)
   rand <-getRandomR (-cons,cons)
-  let resu = test a where test (x:y:[]) = [x,(x+y)/2 + rand, y]
-                          test (x:y:xs) = [x,(x+y)/2 + rand] ++ remain
-                          test x = x
+  let resu = work a where work (x:y:[]) = [x,(x+y)/2 + rand, y]
+                          work (x:y:xs) = [x,(x+y)/2 + rand] ++ remain
+                          work x = x
   return resu
 
 interpolateRandomCol :: [[Float]] -> Rand StdGen [[Float]]
@@ -56,24 +56,24 @@ interpolateRandomMatrix x =  (interpolateRandomCol x) >>= interpolateRandomCol2
 roundRandomMatrix :: [[Float]] -> Rand StdGen [[Int]]
 roundRandomMatrix x = return [ [ round z  | z<-y ]  | y <- x ]
 
-turn :: [[Int]] -> [(Int,Int,Int)]
-turn x =  turn2 (turn1 x)
+range = 10
 
-turn1 :: [[Int]] -> [(Int,[Int])]
-turn1 x = zip [1..] x
+bottom :: Double
+bottom = -10.0
 
-turn2 :: [(Int,[Int])] -> [(Int,Int,Int)]
-turn2 [] = []
-turn2 (x:xs) = turn3 x ++ turn2 xs
+work :: Int -> Int -> Int
+work a b 
+  | a >= b = 1
+  | otherwise = 0
 
-turn3 :: (Int, [Int]) -> [(Int,Int,Int)]
-turn3 x = [ ((fst x),a,b) | (a,b) <- ( zip (snd x) [1..])]
+turnTerrainContourIntoTerrainMatrix :: [[Int]] -> [[[Int]]]
+turnTerrainContourIntoTerrainMatrix x = [[[ work b c | c <-[(-range)..range]] |  b <- a]  | a <- x ]
 
-turnIntoDoubles :: [(Int,Int,Int)] -> [(Double,Double,Double)]
-turnIntoDoubles x = [(int2Double a,int2Double b,int2Double c) | (a,b,c) <-x]
+fromMatrixIntoTriplesList :: [[[Int]]] -> [(Double, Double, Double)]
+fromMatrixIntoTriplesList inp =  [(x,y,z) | (x,a) <- zip [bottom, bottom + 1 ..] inp, (z, b) <- zip  [bottom, bottom + 1 ..] a, (y,c) <- zip [bottom, bottom + 1 ..] b,  c == 1]
 
-getMatrix :: IO [(Double,Double,Double)]
+getMatrix :: IO [[[Int]]]
 getMatrix = do
-  x <- evalRandIO $  getRandom22Matrix >>=  interpolateRandomMatrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= roundRandomMatrix
-  let y = turnIntoDoubles( turn x)
-  return y
+  x <- evalRandIO $  getRandom22Matrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= roundRandomMatrix
+  -- x <- evalRandIO $  getRandom22Matrix >>=  interpolateRandomMatrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= roundRandomMatrix
+  return $ turnTerrainContourIntoTerrainMatrix x

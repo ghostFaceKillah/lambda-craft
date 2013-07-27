@@ -41,7 +41,7 @@ processMove = do
   crx    <- liftM2 L.cross (use direction) (use up)
   dirvec <- use direction
 
-  let moveSpeed = 0.05
+  let moveSpeed = 0.2
 
   let processA = processKey 'A' $ pos -= moveSpeed * crx
   let processD = processKey 'D' $ pos += moveSpeed * crx
@@ -52,7 +52,7 @@ processMove = do
 
 processRotation :: GameMonad ()
 processRotation = stateCombinator [processQ, processE]
-  where phi = pi/360
+  where phi = pi/140
         processQ = processKey 'Q' $ direction %= rotateXZ (-phi)
         processE = processKey 'E' $ direction %= rotateXZ phi
 

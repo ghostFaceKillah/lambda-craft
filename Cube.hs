@@ -59,7 +59,6 @@ renderFace (Face coord XM) = do
   GL.vertex $ vertex3d (coord^._x-0.5) (coord^._y+0.5) (coord^._z + 0.5)
   GL.vertex $ vertex3d (coord^._x-0.5) (coord^._y-0.5) (coord^._z + 0.5)
 
-
 renderFace (Face coord YM) = do
   GL.vertex $ vertex3d (coord^._x+0.5) (coord^._y-0.5) (coord^._z + 0.5)
   GL.vertex $ vertex3d (coord^._x+0.5) (coord^._y-0.5) (coord^._z - 0.5)
