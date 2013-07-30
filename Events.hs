@@ -7,6 +7,8 @@ import Graphics.Rendering.OpenGL (($=))
 import Graphics.UI.GLFW as GLFW
 import Linear as L
 import qualified Graphics.Rendering.OpenGL as GL
+import Data.Array.Unboxed
+import Data.Int
 
 import GameState
 
@@ -50,15 +52,62 @@ processMove = do
 
   stateCombinator [processA, processD, processW, processS]
 
+inWhichCube :: L.V3 Double -> (Int, Int, Int)
+inWhichCube x = (truncate ( coord1 x), truncate (coord2 x), truncate (coord3 x))
+
+whatCubeIsUnderUs :: L.V3 Double -> (Int, Int, Int)
+whatCubeIsUnderUs x = (truncate ( coord1 x), truncate (coord2 x)  - 1, truncate (coord3 x))
+
+type Position =  L.V3 Double
+type Terrain =  UArray (Int, Int, Int) Int8
+
+detectCollisionWithEarth :: Position -> Terrain -> Double
+detectCollisionWithEarth pos ter 
+                         | ter!(inWhichCube pos) == 1 = 0.5 + ( fromIntegral $ ( \(_,a,_) -> a ) $ inWhichCube pos )
+                         | ter!(whatCubeIsUnderUs pos) == 1 = 0.5 + ( fromIntegral $ ( \(_,a,_) -> a ) $ whatCubeIsUnderUs pos )
+                         | otherwise = -hellDepth where hellDepth = 1000.0
+
+
+humanHeight = 0.5
+
+applyGravity :: GameMonad ()
+applyGravity = do
+  position <- use pos
+  terrainMatrix <- use terrain
+  g <- use gravity
+  v <- use speed
+  let newspeed = v + g
+      newpos = position + v
+  liftIO $ print $ inWhichCube position 
+  let bound = detectCollisionWithEarth position terrainMatrix 
+  if (coord2 newpos <= bound) then do speed .= L.V3 0 0 0 
+                                      pos .= L.V3 (coord1 position) (bound) (coord3 position)
+                                      liftIO $ print "on surface"
+                              else do speed .= newspeed
+                                      pos .= newpos
+                                      liftIO $ print "gravity working"
+
+
 processMouse :: GameMonad ()
 processMouse = do
   (GL.Position x y) <- liftIO $  GL.get GLFW.mousePos
   let x1 = fromIntegral x
-  let y1 = fromIntegral y
-  let howMuch = (x1 - 200)/300
-  direction %= rotateXZ(howMuch)
+      y1 = fromIntegral y
+      howMuchHorizontally = (x1 - 200)/300
+      howMuchVertically = (y1 - 200)/300
+
+  dir <- use direction
+  upward <- use up
+  -- direction %= rotateXZ(howMuchHorizontally)
+  direction %= rotateAroundAxis2 (L.V3 0 1 0) (-howMuchHorizontally)
+  up %= rotateAroundAxis2 (L.V3 0 1 0) (-howMuchHorizontally)
+  direction %= rotateAroundAxis2  ( vectorProduct dir upward ) (-howMuchVertically)
+  up %= rotateAroundAxis2 ( vectorProduct dir upward ) (-howMuchVertically)
+  dir2 <- use direction 
+  liftIO $ print dir2
+  liftIO $ print upward
+  liftIO $ print (vectorProduct dir upward)
   liftIO $ GLFW.mousePos $= (GL.Position 200 200)
-  liftIO $ print x
 
 processRotation :: GameMonad ()
 processRotation = stateCombinator [processQ, processE]
@@ -67,4 +116,4 @@ processRotation = stateCombinator [processQ, processE]
         processE = processKey 'E' $ direction %= rotateXZ phi
 
 processEvents :: GameMonad ()
-processEvents = stateCombinator [processEscape, processSpace, processMove, processRotation, processMouse]
+processEvents = stateCombinator [processEscape, processSpace, processMove, processRotation, processMouse, applyGravity]
