@@ -7,6 +7,8 @@ import Graphics.Rendering.OpenGL as GL
 import Graphics.UI.GLFW as GLFW
 import Linear as L
 import Control.Lens
+import Data.Array.Unboxed
+import Data.Int
 
 data GameState = GameState {
   _stateLine  :: Bool,
@@ -15,7 +17,7 @@ data GameState = GameState {
   _pos        :: L.V3 Double,
   _direction  :: L.V3 Double,
   _up         :: L.V3 Double,
-  _terrain    :: [[[Int]]],
+  _terrain    :: UArray (Int, Int, Int) Int8,
   _speed      :: L.V3 Double,
   _gravity    :: L.V3 Double,
   _onGround   :: Bool
@@ -35,7 +37,7 @@ initialState = GameState {
   _pos        = L.V3 (-10) 5 (-10),
   _direction  = L.V3 0 0 (-1),
   _up         = L.V3 0 1 0,
-  _terrain    = [],
+  _terrain    = array ((-1,-1,-1),(-1,-1,-1)) [],
   _speed      = L.V3 0 0 0,
   _gravity    = L.V3 0 (-g_const) 0,
   _onGround   = False

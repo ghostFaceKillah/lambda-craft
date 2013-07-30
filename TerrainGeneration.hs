@@ -4,6 +4,8 @@ import Control.Monad
 import Control.Monad.Random
 import System.Random
 import GHC.Float
+import Data.Array.Unboxed
+import Data.Int
 
 cons = 0.4
 cons2 = 6.0
@@ -56,23 +58,29 @@ interpolateRandomMatrix x =  (interpolateRandomCol x) >>= interpolateRandomCol2
 roundRandomMatrix :: [[Float]] -> Rand StdGen [[Int]]
 roundRandomMatrix x = return [ [ round z  | z<-y ]  | y <- x ]
 
-range = 10
+ranger = 10
 
-bottom :: Double
-bottom = -10.0
+bottom :: Int
+bottom = -10
 
 work :: Int -> Int -> Int
 work a b 
   | a >= b = 1
   | otherwise = 0
 
-turnTerrainContourIntoTerrainMatrix :: [[Int]] -> [[[Int]]]
-turnTerrainContourIntoTerrainMatrix x = [[[ work b c | c <-[(-range)..range]] |  b <- a]  | a <- x ]
+turnTerrainContourIntoNodeList :: [[Int]] -> [[[Int]]]
+turnTerrainContourIntoNodeList x = [[[ work b c | c <-[(-ranger)..ranger]] |  b <- a]  | a <- x ]
 
-fromMatrixIntoTriplesList :: [[[Int]]] -> [(Double, Double, Double)]
-fromMatrixIntoTriplesList inp =  [(x,y,z) | (x,a) <- zip [bottom, bottom + 1 ..] inp, (z, b) <- zip  [bottom, bottom + 1 ..] a, (y,c) <- zip [bottom, bottom + 1 ..] b,  c == 1]
+fromNodesListIntoTriplesList :: [[[Int]]] -> [((Int, Int, Int), Int8) ]
+fromNodesListIntoTriplesList inp =  [((x,y,z), fromIntegral c) | (x,a) <- zip [bottom, bottom + 1 ..] inp, (z, b) <- zip  [bottom, bottom + 1 ..] a, (y,c) <- zip [bottom, bottom + 1 ..] b]
 
-getMatrix :: IO [[[Int]]]
+turnTerrainContourIntoTerrainMatrix :: [[Int]] -> UArray (Int, Int, Int) Int8
+turnTerrainContourIntoTerrainMatrix x = array ((bottom,bottom,bottom),(-bottom,-bottom,-bottom)) (fromNodesListIntoTriplesList $ turnTerrainContourIntoNodeList x)
+
+fromTerrainMatrixIntoRenderableList :: UArray (Int, Int, Int) Int8 -> [(Double, Double, Double)]
+fromTerrainMatrixIntoRenderableList inp = [(fromIntegral x,fromIntegral y,fromIntegral z) | x <- [(-ranger)..ranger], y <- [(-ranger)..ranger], z <- [(-ranger)..ranger], inp!(x,y,z) == 1]
+
+getMatrix :: IO (UArray (Int, Int, Int) Int8)
 getMatrix = do
   x <- evalRandIO $  getRandom22Matrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= interpolateRandomMatrix >>= roundRandomMatrix
   return $ turnTerrainContourIntoTerrainMatrix x

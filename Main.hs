@@ -20,9 +20,7 @@ main = do
   GLFW.initialize
   GLFW.openWindow (GL.Size 800 600) [GLFW.DisplayAlphaBits 8] GLFW.Window
   GLFW.windowTitle $= "Lambda-Craft"
- 
   runStateT game initialState
-
   GLFW.closeWindow
   GLFW.terminate
 
@@ -77,7 +75,7 @@ detectCollisionWithEarth :: GameMonad ()
 detectCollisionWithEarth = do
   eye <- use pos
   ter <- use terrain
-  let x = fromMatrixIntoTriplesList ter
+  let x = fromTerrainMatrixIntoRenderableList ter   --- CHANGE TO THE NEW WAY OF HOLDING INF
   if (detectCollision eye x) then onGround .= True
                                else onGround .= False
   return ()
@@ -98,7 +96,7 @@ render = do
 
   liftIO $ GL.renderPrimitive GL.Triangles $ do
     GL.color $ color3 1 0 0
-    mapM_ renderCube [Cube (L.V3 a b c) | (a,b,c) <- (fromMatrixIntoTriplesList terrainMatrix) ]
+    mapM_ renderCube [Cube (L.V3 a b c) | (a,b,c) <- (fromTerrainMatrixIntoRenderableList terrainMatrix) ]
 
 vertex3 :: GL.GLfloat -> GL.GLfloat -> GL.GLfloat -> GL.Vertex3 GL.GLfloat
 vertex3 = GL.Vertex3
